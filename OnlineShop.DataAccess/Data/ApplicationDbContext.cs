@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineShop.Models;
 
-namespace OnlineShop.Data
+namespace OnlineShop.DataAccess.Data
 {
     public class ApplicationDbContext : DbContext
     {
