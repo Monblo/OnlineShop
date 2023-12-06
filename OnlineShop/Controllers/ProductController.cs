@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Hosting;
 using OnlineShop.DataAccess.Repository.IRepository;
 using OnlineShop.Models;
 using OnlineShop.Models.ViewModels;
@@ -19,7 +21,7 @@ namespace OnlineShop.Controllers
         }
         public IActionResult Index()
         {
-            List<Product> objProductList = _unitOfWork.Product.GetAll().ToList();
+            List<Product> objProductList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
             return View(objProductList);
         }
 
@@ -143,8 +145,15 @@ namespace OnlineShop.Controllers
             {
                 return NotFound();
             }
-            _unitOfWork.Save();
+
+            var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, obj.ImageUrl.TrimStart('\\'));
+            if (System.IO.File.Exists(oldImagePath))
+            {
+                System.IO.File.Delete(oldImagePath);
+            }
+
             _unitOfWork.Product.Remove(obj);
+            _unitOfWork.Save();
             TempData["Success"] = "Product deleted successfully";
             return RedirectToAction("Index");
         }
